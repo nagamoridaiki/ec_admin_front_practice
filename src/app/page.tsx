@@ -1,114 +1,112 @@
+"use client";
 import Image from "next/image";
-
+import { useState } from "react";
 
 export default function Home() {
+  type Task = {
+    id: number;
+    title: string;
+    status: string;
+    details: string;
+    datetime: string;
+  };
+
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [adminName, setAdminName] = useState<string>("Admin");
+
+  const tasks: Task[] = [
+    { id: 1, title: "商品が登録された", status: "completed", details: "商品名: Apple, 画像URL: /apple.jpg, 金額: ¥100", datetime: "2023-10-01 10:00" },
+    { id: 2, title: "商品が仕入れされた", status: "completed", details: "商品名: Banana, 画像URL: /banana.jpg, 数量: 50", datetime: "2023-10-02 11:00" },
+    { id: 3, title: "販売注文が入った", status: "in-progress", details: "購入者情報: John Doe, 購入された商品一覧: [Apple, Banana], それぞれの数量: [10, 5], 合計金額: ¥1500", datetime: "2023-10-03 12:00" },
+  ];
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="flex flex-col min-h-screen bg-white">
+      <header className="w-full bg-gray-100 text-black p-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <Image src="/logo.png" alt="Logo" width={40} height={40} className="cursor-pointer" />
+          <h1 className="ml-2 text-2xl font-bold">トップページ</h1>
+        </div>
+        <div>
+          {isLoggedIn ? (
+            <div className="flex items-center">
+              <span className="mr-4">こんにちは, {adminName}</span>
+              <button onClick={handleLogout} className="bg-white text-red-500 p-2 rounded border border-red-500">ログアウト</button>
+            </div>
+          ) : (
+            <button onClick={handleLogin} className="bg-white text-blue-500 p-2 rounded border border-blue-500">ログイン</button>
+          )}
+        </div>
+      </header>
+      <div className="flex flex-1">
+        <aside className="w-1/6 bg-gray-50 p-4 border-r border-gray-300" aria-label="Sidebar">
+          <h2 className="text-xl font-bold mb-4">業務一覧</h2>
+          <ul>
+            <li className="mb-2">
+              <button
+                className="w-full text-left p-2 rounded bg-white"
+                onClick={() => window.location.href = '/ProductRegistPage'}
+              >
+                商品登録
+              </button>
+            </li>
+            <li className="mb-2"><button className="w-full text-left p-2 rounded bg-white">商品仕入れ</button></li>
+            <li className="mb-2"><button className="w-full text-left p-2 rounded bg-white">販売一覧</button></li>
+            <li className="mb-2"><button className="w-full text-left p-2 rounded bg-white">会員一覧</button></li>
+          </ul>
+        </aside>
+        <div className="flex-1 flex bg-gray-50">
+          <aside className="w-1/4 bg-white p-4">
+            <h2 className="text-xl font-bold mb-4">最新のイベント</h2>
+            <ul>
+              {tasks.map((task) => (
+                <li key={task.id} className="mb-2">
+                  <button
+                    className={`w-full text-left p-2 rounded ${task.id === selectedTask?.id ? "bg-blue-100" : "bg-white"}`}
+                    onClick={() => handleTaskClick(task)}
+                  >
+                    <h3 className="font-semibold">{task.title}</h3>
+                    <p className="text-sm text-gray-500">{task.datetime}</p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </aside>
+          <main className="flex-1 p-4 bg-white">
+            {selectedTask ? (
+              <div className="bg-white p-4 rounded shadow">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">{selectedTask.title}</h2>
+                  <button className="text-gray-500">X</button>
+                </div>
+                <div className="mb-4">
+                  <h3 className="font-semibold">Details:</h3>
+                  <p>{selectedTask.details}</p>
+                  <p>{selectedTask.datetime}</p>
+                </div>
+                <div className="flex justify-between">
+                  <button className="bg-gray-200 p-2 rounded">Move to archive</button>
+                </div>
+              </div>
+            ) : (
+              <p>Select a task to view details</p>
+            )}
+          </main>
         </div>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
