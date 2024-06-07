@@ -1,10 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/app/store';
+import { unwrapResult } from '@reduxjs/toolkit';
 import { setTitle, setNote, setCategoryId, setImageUrl, registerProduct } from '@/app/features/productSlice';
-import { useRef, useState, useCallback } from 'react';
+import { setCategories, fetchCategoriesList } from '@/app/features/categorySlice';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NAVIGATION_PATH } from '@/constants/navigation';
 import { useImage } from '@/hooks/useImage'
+
 
 export const useProductRegistTemplates = () => {
 
@@ -12,11 +15,9 @@ export const useProductRegistTemplates = () => {
   const { title, note, categoryId } = useSelector((state: RootState) => state.product);
   const fileInput = useRef<HTMLInputElement | null>(null);
   const { imageUrl, imageUpload } = useImage();
+  const [showPopup, setShowPopup] = useState(false);
 
-  const categoriesList = [
-    { categoryId: 1, categoryName: 'Category 1' },
-    { categoryId: 2, categoryName: 'Category 2' },
-  ];
+  const categoriesList = useSelector((state: RootState) => state.category.categories);
 
   const handleRegisterProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,7 +28,15 @@ export const useProductRegistTemplates = () => {
         note: note,
         image_url: imageUrl,
         category_id: categoryId
-      }));
+      })).then((action) => {
+        if (registerProduct.fulfilled.match(action)) {
+          const result = unwrapResult(action);
+          console.log('Product registered successfully:', result);
+          setShowPopup(true);
+          setTimeout(() => setShowPopup(false), 3000);
+          window.location.href = NAVIGATION_PATH.TOP;
+        }
+      });
     }
   };
 
@@ -43,6 +52,12 @@ export const useProductRegistTemplates = () => {
     dispatch(setCategoryId(Number(e.target.value)));
   };
 
+
+  useEffect(() => {
+    dispatch(fetchCategoriesList());
+  }, [dispatch]);
+
+
   return {
     title,
     note,
@@ -55,5 +70,6 @@ export const useProductRegistTemplates = () => {
     handleChangeDescription,
     handleChangeCategoryId,
     imageUpload,
+    showPopup
   };
 };

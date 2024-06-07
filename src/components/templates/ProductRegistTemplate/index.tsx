@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useProductRegistTemplates } from './useProductRegistTemplates';
+import { useRouter } from 'next/router';
 
 interface User {
   name: string;
@@ -45,6 +46,7 @@ export const ProductRegistTemplate: React.FC = () => {
     handleChangeDescription,
     handleChangeCategoryId,
     imageUpload,
+    showPopup
   } = useProductRegistTemplates();
 
   return (
@@ -82,6 +84,11 @@ export const ProductRegistTemplate: React.FC = () => {
 
           <button type="submit" className="submit-button bg-blue-500 text-white py-2 px-4 rounded">Register Product</button>
         </form>
+        {showPopup && (
+        <div className="popup">
+          商品が正常に登録されました！
+        </div>
+      )}
       </div>
     </div>
   );
