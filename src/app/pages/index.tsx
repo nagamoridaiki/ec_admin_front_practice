@@ -58,7 +58,7 @@ export default function Home() {
             <li className="mb-2">
               <button
                 className="w-full text-left p-2 rounded bg-white"
-                onClick={() => window.location.href = '/pages/ProductRegistPage'}
+                onClick={() => window.location.href = '/ProductRegistPage'}
               >
                 商品登録
               </button>
