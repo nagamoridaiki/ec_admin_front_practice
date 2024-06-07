@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchProductListApi, registerProductApi, fetchCategoriesListApi } from '@/apis/productApi';
-import { ProductType, RegisterProductParams, CategoryType, listProductParams } from '../../interfaces/product';
+import { registerProductApi } from '@/apis/productApi';
+import { ProductType, RegisterProductParams } from '@/interfaces/product';
 
 interface ProductState {
   title: string;
   note: string;
   categoryId: number;
   imageUrl: string | undefined;
-  items: ProductType[];
+  product: ProductType | undefined;
   isLoading: boolean;
   error: string | null;
 }
@@ -17,12 +17,11 @@ const initialState: ProductState = {
   note: '',
   categoryId: 1,
   imageUrl: undefined,
-  items: [],
+  product: undefined,
   isLoading: false,
   error: null,
 };
 
-// Async thunk for registering a product
 export const registerProduct = createAsyncThunk(
   'product/registerProduct',
   async (productData: RegisterProductParams) => {
@@ -56,7 +55,7 @@ const productSlice = createSlice({
       })
       .addCase(registerProduct.fulfilled, (state, action: PayloadAction<ProductType | undefined>) => {
         state.isLoading = false;
-        state.items = action.payload ? [action.payload] : [];
+        state.product = action.payload;
       })
       .addCase(registerProduct.rejected, (state, action) => {
         state.isLoading = false;
