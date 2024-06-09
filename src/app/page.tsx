@@ -63,7 +63,14 @@ export default function Home() {
                 商品登録
               </button>
             </li>
-            <li className="mb-2"><button className="w-full text-left p-2 rounded bg-white">商品仕入れ</button></li>
+            <li className="mb-2">
+              <button
+                className="w-full text-left p-2 rounded bg-white"
+                onClick={() => window.location.href = '/pages/InventoryManagementPage'}
+              >
+              在庫管理
+              </button>
+            </li>
             <li className="mb-2"><button className="w-full text-left p-2 rounded bg-white">販売一覧</button></li>
             <li className="mb-2"><button className="w-full text-left p-2 rounded bg-white">会員一覧</button></li>
           </ul>
