@@ -3,6 +3,7 @@
 import React from 'react';
 import { useProductRegistTemplates } from './useProductRegistTemplates';
 import { useRouter } from 'next/router';
+import { FaHome, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
 
 interface User {
   name: string;
@@ -49,9 +50,19 @@ export const ProductRegistTemplate: React.FC = () => {
     showPopup
   } = useProductRegistTemplates();
 
+  const navigateToTop = () => {
+    window.location.href = '/';
+  };
+
   return (
     <div className="app">
-      <Header user={{ name: 'User' }} />
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+        <FaHome
+          style={{ position: 'absolute', left: '20px', cursor: 'pointer', fontSize: '2rem' }}
+          onClick={navigateToTop}
+        />
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Receipt Products</h1>
+      </header>
 
       <div className="product-registration-container p-4">
         <h1 className="text-2xl font-bold mb-4">Product Registration</h1>
