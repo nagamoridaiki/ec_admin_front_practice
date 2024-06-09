@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { useArrivingProductsTempdates } from './useInventoryManagementTemplates';
+import { useInventoryManagementTemplate } from './useInventoryManagementTemplates';
 import { FaHome } from 'react-icons/fa';
 import RankedQuantities from '@/components/organisms/RankedQuantities';
 
@@ -13,9 +13,9 @@ const Header: React.FC<{ onNavigateToTop: () => void }> = ({ onNavigateToTop }) 
 );
 
 export const InventoryManagementTemplate: React.FC = () => {
-  const { products } = useArrivingProductsTempdates(); // 登録済みの商品一覧データ
+  const { products, isUpdating, handleUpdateClick } = useInventoryManagementTemplate(); // 登録済みの商品一覧データ
   const [inputValues, setInputValues] = useState<{ [key: string]: number }>({});
-  const [changedQuantities, setChangedQuantities] = useState<{ productId: number, rank: string, oldNum: number, newNum: number }[]>([]);
+  const [changedQuantities, setChangedQuantities] = useState<{ product_id: number, rank: string, old_num: number, new_num: number, inventory_id?: number }[]>([]);
 
   const navigateToTop = useCallback(() => {
     window.location.href = '/';
@@ -30,9 +30,9 @@ export const InventoryManagementTemplate: React.FC = () => {
       const product = products.find(p => p.productId === productId);
       const inventory = product?.inventories?.find(inv => inv.rank === rank);
       const oldNum = inventory?.inventoryNum || 0;
-      const inventoryId = inventory?.inventoryId || 0;
-      const newQuantities = [...prev, { productId, rank, oldNum, newNum: value, inventoryId }];
-      //console.log(newQuantities); // デバッグ用のログ
+      const inventoryId = inventory?.inventoryId || undefined;
+      const newQuantities = [...prev, { product_id: productId, rank, old_num: oldNum, new_num: value, inventory_id: inventoryId }];
+      console.log(newQuantities); // デバッグ用のログ
       return newQuantities;
     });
   }, [products]);
@@ -50,7 +50,13 @@ export const InventoryManagementTemplate: React.FC = () => {
           />
         ))}
       </ul>
-      <button className="block mx-auto my-5 px-5 py-2 bg-blue-500 text-white border-none rounded cursor-pointer">更新</button>
+      <button
+        className="block mx-auto my-5 px-5 py-2 bg-blue-500 text-white border-none rounded cursor-pointer"
+        onClick={() => handleUpdateClick(changedQuantities)}
+        disabled={isUpdating}
+      >
+        {isUpdating ? '更新中...' : '更新'}
+      </button>
     </div>
   );
 };

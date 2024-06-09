@@ -6,7 +6,7 @@ export const registerProductApi = async (params: RegisterProductParams) => {
   try {
     const { data } = await globalAxios.post('/products', params);
     const res: ResponseType<ProductType> = {
-      code: 200,
+      code: 201,
       data
     };
     return res
@@ -79,6 +79,27 @@ export const fetchProductListApi = async () => {
 }
 
 
+export const updateQuantitiesApi = async (params: { product_id: number, rank: string, old_num: number, new_num: number, inventory_id?: number }) => {
+  try {
+    const { data } = await globalAxios.post('/inventory', params);
+    const res: ResponseType = {
+      code: 201,
+      data
+    };
+    return res;
+  } catch (err) {
+    const res: ResponseType = {
+      code: 500,
+      message: ''
+    };
+    if (isAxiosError(err)) {
+      const axiosError = err as IErrorResponse;
+      res.code = axiosError.response.status;
+      res.message = axiosError.response.data.message;
+    }
+    return res;
+  }
+};
 
 export interface IErrorResponse {
   code: string;
