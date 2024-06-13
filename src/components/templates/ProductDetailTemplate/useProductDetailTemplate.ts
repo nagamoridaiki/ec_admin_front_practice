@@ -1,18 +1,8 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '@/app/store';
-import { unwrapResult } from '@reduxjs/toolkit';
-import { setTitle, setNote, setCategoryId, setImageUrl, registerProduct } from '@/app/features/productSlice';
-import { setCategories, fetchCategoriesList } from '@/app/features/categorySlice';
-import { useRouter } from 'next/router';
-import { NAVIGATION_PATH } from '@/constants/navigation';
-import { useImage } from '@/hooks/useImage'
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { FaHome } from 'react-icons/fa';
-import RankedQuantities from '@/components/organisms/RankedQuantities';
 import { fetchProductDetailApi } from '@/apis/productApi';
-import { ProductType, RegisterProductParams, CategoryType, listProductParams } from '@/interfaces/product';
-import { resetAllMocks } from '@storybook/test';
+import { ProductType } from '@/interfaces/product';
+import { updateQuantitiesApi } from '@/apis/productApi';
 
 const toProductMessage = (showProduct: ProductType) => {
   const {
@@ -35,13 +25,19 @@ const toProductMessage = (showProduct: ProductType) => {
 export const useProductDetailTemplates = (productId: number) => {
 
   const [product, setProduct] = useState<ProductType | undefined>(undefined)
+  const [isUpdating, setIsUpdating] = useState(false);
+  const initialInventoryState = {
+    S: { price: 0, pre_inventory_num: 0, af_inventory_num: 0 },
+    A: { price: 0, pre_inventory_num: 0, af_inventory_num: 0 },
+    B: { price: 0, pre_inventory_num: 0, af_inventory_num: 0 },
+    C: { price: 0, pre_inventory_num: 0, af_inventory_num: 0 }
+  };
+  const [inventoryState, setInventoryState] = useState(initialInventoryState);
 
-  const [inventoryState, setInventoryState] = useState({
-    S: { price: 0, inventoryNum: 0 },
-    A: { price: 0, inventoryNum: 0 },
-    B: { price: 0, inventoryNum: 0 },
-    C: { price: 0, inventoryNum: 0 }
-  });
+  const fetchProduct = async () => {
+    const res = await fetchProductDetailApi(Number(productId));
+    setProduct(res?.data && typeof res.data === 'object' ? toProductMessage(res.data) : undefined);
+  };
 
   // ランクごとの金額や在庫数が入力されたタイミングで瞬時に状態管理しておく
   const handleInputChange = (rank: 'S' | 'A' | 'B' | 'C', field: 'price' | 'inventoryNum', value: number) => {
@@ -62,15 +58,35 @@ export const useProductDetailTemplates = (productId: number) => {
     window.location.href = '/';
   }, []);
 
-  const handleUpdateClick = () => {
+  const handleUpdateClick = async (params: typeof inventoryState) => {
     console.log('inventoryStateの中身', inventoryState);
+    setIsUpdating(true);
+
+    const updatePromises = ['S', 'A', 'B', 'C'].map(rank => {
+      const { price, pre_inventory_num, af_inventory_num } = params[rank as keyof typeof params];
+
+      return updateQuantitiesApi({
+        product_id: productId,
+        rank,
+        new_price: price,
+        old_num: pre_inventory_num,
+        new_num: af_inventory_num,
+        inventory_id: product?.inventories?.find(inv => inv.rank === rank)?.inventoryId ?? undefined
+      });
+    });
+
+    try {
+      await Promise.all(updatePromises);
+      setInventoryState(initialInventoryState);
+      fetchProduct();
+    } catch (error) {
+      console.error('Failed to update quantities:', error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      const res = await fetchProductDetailApi(Number(productId));
-      setProduct(res?.data && typeof res.data === 'object' ? toProductMessage(res.data) : undefined)
-    };
     fetchProduct();
   }, [productId]);
 
@@ -80,19 +96,23 @@ export const useProductDetailTemplates = (productId: number) => {
       const updatedState = { ...inventoryState };
       product.inventories.forEach(inv => {
         if (inv.rank in updatedState) {
-          updatedState[inv.rank as keyof typeof updatedState] = { price: inv.price, inventoryNum: inv.inventoryNum };
+          updatedState[inv.rank as keyof typeof updatedState] = {
+            price: inv.price,
+            pre_inventory_num: inv.inventoryNum,
+            af_inventory_num: inv.inventoryNum
+          };
         }
       });
       setInventoryState(updatedState);
     }
   }, [product]);
-
   return {
     product,
+    inventoryState,
+    isUpdating,
     navigateToTop,
     handleUpdateClick,
     handleInputChange
   }
 
 }
-

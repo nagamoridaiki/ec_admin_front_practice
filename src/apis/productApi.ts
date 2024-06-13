@@ -100,7 +100,7 @@ export const fetchProductDetailApi = async(id: number) => {
   }
 }
 
-export const updateQuantitiesApi = async (params: { product_id: number, rank: string, old_num: number, new_num: number, inventory_id?: number }) => {
+export const updateQuantitiesApi = async (params: { product_id: number, rank: string, new_price?: number, old_num?: number, new_num?: number, inventory_id?: number }) => {
   try {
     const { data } = await globalAxios.post('/inventory', params);
     const res: ResponseType = {

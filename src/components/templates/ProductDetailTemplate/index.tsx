@@ -96,7 +96,7 @@ const Header: React.FC<{ onNavigateToTop: () => void }> = ({ onNavigateToTop }) 
 
 export const ProductDetailTemplate: React.FC<{ productId: number }> = ({productId}) => {
 
-  const { product, navigateToTop, handleUpdateClick, handleInputChange } = useProductDetailTemplates(productId);
+  const { product, inventoryState, isUpdating, navigateToTop, handleUpdateClick, handleInputChange } = useProductDetailTemplates(productId);
 
   return (
     <div>
@@ -152,7 +152,11 @@ export const ProductDetailTemplate: React.FC<{ productId: number }> = ({productI
                       </tbody>
                   </table>
               </div>
-              <button style={buttonStyle} onClick={handleUpdateClick}>更新確認</button>
+              <button
+                style={buttonStyle}
+                onClick={() => handleUpdateClick(inventoryState)}
+                disabled={isUpdating}
+              >{isUpdating ? '更新中...' : '更新'}</button>
           </div>
       )}
     </div>
