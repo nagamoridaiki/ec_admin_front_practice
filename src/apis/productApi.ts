@@ -78,8 +78,29 @@ export const fetchProductListApi = async () => {
   }
 }
 
+export const fetchProductDetailApi = async(id: number) => {
+  try {
+    const { data }: AxiosResponse<ProductType> = await globalAxios.get(`/products/${id}`);
+    const res: ResponseType<ProductType> = {
+      code: 200,
+      data
+    }
+    return res
+  } catch (err) {
+    const res: ResponseType = {
+      code: 500,
+      message: ''
+    }
+    if (isAxiosError(err)) {
+      const axiosError = err as IErrorResponse;
+      res.code = axiosError.response.status
+      res.message = axiosError.response.data.message
+    }
+    return res
+  }
+}
 
-export const updateQuantitiesApi = async (params: { product_id: number, rank: string, old_num: number, new_num: number, inventory_id?: number }) => {
+export const updateQuantitiesApi = async (params: { product_id: number, rank: string, new_price?: number, old_num?: number, new_num?: number, inventory_id?: number }) => {
   try {
     const { data } = await globalAxios.post('/inventory', params);
     const res: ResponseType = {

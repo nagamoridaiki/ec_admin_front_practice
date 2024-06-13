@@ -2,101 +2,108 @@
 
 import React from 'react';
 
-const RankedQuantities: React.FC<{
+interface RankedQuantitiesProps {
   product: any;
   inputValues: { [key: string]: number };
   onInputChange: (productId: number, rank: string, value: number) => void;
-}> = ({ product, inputValues, onInputChange }) => (
-  <li style={productItemStyle}>
-    <img src={product.imageUrl} alt={product.title} style={productImageStyle} />
-    <h2 style={productTitleStyle}>{product.title}</h2>
-    <div style={productRanksStyle}>
-      {['S', 'A', 'B', 'C'].map((rank, index) => {
-        const inventory = product.inventories?.find((inv: any) => inv.rank === rank) || { rank, inventoryNum: 0 };
-        const inputValue = inputValues[`${product.productId}-${rank}`] || inventory.inventoryNum;
+}
 
-        return (
-          <div key={index} style={rankContainerStyle}>
-            <div style={rankLabelContainerStyle}>
-              <span style={rankLabelStyle}>状態{inventory.rank}:</span>
-              <div style={rankInputContainerStyle}>
-                <span>{inventory.inventoryNum}</span>
-                <input
-                  type="number"
-                  value={inputValue}
-                  onChange={(e) => onInputChange(product.productId, rank, Number(e.target.value))}
-                  style={{
-                    ...rankInputStyle,
-                    backgroundColor: inputValue !== inventory.inventoryNum ? 'yellow' : 'white'
-                  }}
-                />
+const RankedQuantities: React.FC<RankedQuantitiesProps> = ({ product, inputValues, onInputChange }) => {
+  const handleNavigation = (productId: number) => {
+    window.location.href = `http://localhost:4000/ProductDetail/${productId}`;
+  };
+
+  return (
+    <li style={styles.productItem}>
+      <img
+        src={product.imageUrl}
+        alt={product.title}
+        style={styles.productImage}
+        onClick={() => handleNavigation(product.productId)}
+      />
+      <h2 style={styles.productTitle} onClick={() => handleNavigation(product.productId)}>
+        {product.title}
+      </h2>
+      <div style={styles.productRanks}>
+        {['S', 'A', 'B', 'C'].map((rank) => {
+          const inventory = product.inventories?.find((inv: any) => inv.rank === rank) || { rank, inventoryNum: 0 };
+          const inputValue = inputValues[`${product.productId}-${rank}`] || inventory.inventoryNum;
+
+          return (
+            <div key={rank} style={styles.rankContainer}>
+              <div style={styles.rankLabelContainer}>
+                <span style={styles.rankLabel}>状態{inventory.rank}:</span>
+                <div style={styles.rankInputContainer}>
+                  <span>{inventory.inventoryNum}</span>
+                  <input
+                    type="number"
+                    value={inputValue}
+                    onChange={(e) => onInputChange(product.productId, rank, Number(e.target.value))}
+                    style={{
+                      ...styles.rankInput,
+                      backgroundColor: inputValue !== inventory.inventoryNum ? 'yellow' : 'white'
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
-  </li>
-);
-
-
-const productItemStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginBottom: '20px',
-  border: '1px solid #dee2e6',
-  padding: '10px',
-  borderRadius: '5px'
+          );
+        })}
+      </div>
+    </li>
+  );
 };
 
-const productImageStyle: React.CSSProperties = {
-  marginRight: '10px',
-  width: '50px',
-  height: '50px'
+const styles = {
+  productItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: '20px',
+    border: '1px solid #dee2e6',
+    padding: '10px',
+    borderRadius: '5px'
+  } as React.CSSProperties,
+  productImage: {
+    marginRight: '10px',
+    width: '50px',
+    height: '50px'
+  } as React.CSSProperties,
+  productTitle: {
+    fontSize: '1.2rem',
+    flex: '0.9'
+  } as React.CSSProperties,
+  productRanks: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  } as React.CSSProperties,
+  rankContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginRight: '10px'
+  } as React.CSSProperties,
+  rankLabelContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  } as React.CSSProperties,
+  rankLabel: {
+    marginRight: '5px'
+  } as React.CSSProperties,
+  rankInputContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginRight: '0px'
+  } as React.CSSProperties,
+  rankInput: {
+    marginTop: '5px',
+    width: '50px',
+    textAlign: 'center',
+    marginLeft: '15px'
+  } as React.CSSProperties
 };
-
-const productTitleStyle: React.CSSProperties = {
-  fontSize: '1.2rem',
-  flex: '0.9'
-};
-
-const productRanksStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center'
-};
-
-const rankContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  marginRight: '10px'
-};
-
-const rankLabelContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center'
-};
-
-const rankLabelStyle: React.CSSProperties = {
-  marginRight: '5px'
-};
-
-const rankInputContainerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  marginRight: '0px'
-};
-
-const rankInputStyle: React.CSSProperties = {
-  marginTop: '5px',
-  width: '50px',
-  textAlign: 'center',
-  marginLeft: '15px'
-};
-
 
 export default RankedQuantities;
