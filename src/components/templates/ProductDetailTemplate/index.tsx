@@ -142,7 +142,7 @@ export const ProductDetailTemplate: React.FC<{ productId: number }> = ({productI
                                                   type="text"
                                                   style={inputStyle}
                                                   defaultValue={inventory.inventoryNum}
-                                                  onChange={(e) => handleInputChange(rank as 'S' | 'A' | 'B' | 'C', 'inventoryNum', Number(e.target.value))}
+                                                  onChange={(e) => handleInputChange(rank as 'S' | 'A' | 'B' | 'C', 'af_inventory_num', Number(e.target.value))}
                                               />
                                           </div>
                                       </td>

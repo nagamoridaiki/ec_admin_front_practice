@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { fetchProductDetailApi } from '@/apis/productApi';
 import { ProductType } from '@/interfaces/product';
@@ -22,11 +21,18 @@ const toProductMessage = (showProduct: ProductType) => {
   }
 }
 
+type InventoryState = {
+  S: { price: number, pre_inventory_num: number, af_inventory_num: number },
+  A: { price: number, pre_inventory_num: number, af_inventory_num: number },
+  B: { price: number, pre_inventory_num: number, af_inventory_num: number },
+  C: { price: number, pre_inventory_num: number, af_inventory_num: number }
+};
+
 export const useProductDetailTemplates = (productId: number) => {
 
   const [product, setProduct] = useState<ProductType | undefined>(undefined)
   const [isUpdating, setIsUpdating] = useState(false);
-  const initialInventoryState = {
+  const initialInventoryState: InventoryState = {
     S: { price: 0, pre_inventory_num: 0, af_inventory_num: 0 },
     A: { price: 0, pre_inventory_num: 0, af_inventory_num: 0 },
     B: { price: 0, pre_inventory_num: 0, af_inventory_num: 0 },
@@ -40,7 +46,7 @@ export const useProductDetailTemplates = (productId: number) => {
   };
 
   // ランクごとの金額や在庫数が入力されたタイミングで瞬時に状態管理しておく
-  const handleInputChange = (rank: 'S' | 'A' | 'B' | 'C', field: 'price' | 'inventoryNum', value: number) => {
+  const handleInputChange = (rank: 'S' | 'A' | 'B' | 'C', field: 'price' | 'af_inventory_num', value: number) => {
     setInventoryState(prevState => {
       const newState = {
         ...prevState,
@@ -49,7 +55,6 @@ export const useProductDetailTemplates = (productId: number) => {
           [field]: value
         }
       };
-      console.log('Updated Inventory State:', newState);
       return newState;
     });
   };
@@ -58,12 +63,12 @@ export const useProductDetailTemplates = (productId: number) => {
     window.location.href = '/';
   }, []);
 
-  const handleUpdateClick = async (params: typeof inventoryState) => {
-    console.log('inventoryStateの中身', inventoryState);
+  const handleUpdateClick = async (params: InventoryState) => {
+
     setIsUpdating(true);
 
-    const updatePromises = ['S', 'A', 'B', 'C'].map(rank => {
-      const { price, pre_inventory_num, af_inventory_num } = params[rank as keyof typeof params];
+    const updatePromises = (['S', 'A', 'B', 'C'] as const).map(rank => {
+      const { price, pre_inventory_num, af_inventory_num } = params[rank];
 
       return updateQuantitiesApi({
         product_id: productId,
